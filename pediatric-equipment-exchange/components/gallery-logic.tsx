@@ -9,7 +9,7 @@ interface Props {
 export default function GalleryGrid( {items}: Props) {
     return (
             <>
-            <div>
+            <div className = "px-300">
                 <input type="text" placeholder="Search inventory..." />
             </div>
                 <div className = "grid grid-cols-6 gap-2 p-6">
