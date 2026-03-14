@@ -7,7 +7,7 @@ export default function Login() {
 
       {/* Middle box */}
       <main className="flex min-h-screen w-4/6 max-w-screen flex-col items-center justify-between py-32 px-16 bg-teal-300 sm:items-start">
-        <div className="flex flex-col items-center gap-7 text-center sm:items-start sm:text-left">
+        <div className="flex flex-col items-center gap-8 text-center sm:items-start sm:text-left">
 
           {/* Main and sub headers */}
           <h1 className="max-w-xs text-6xl font-semibold tracking-tight leading-15 text-white">
@@ -24,7 +24,7 @@ export default function Login() {
           {/* Login Redirect: EDIT LATER WITH AUTHENTICATION */}
           <Link 
             className="flex h-12 w-full items-center justify-center rounded-full bg-rose-400 px-5 transition-colors hover:border-transparent hover:bg-rose-300  md:w-[158px] text-white"
-            href="/inventory-gallery"
+            href="/equipment-gallery"
           >
             Login
           </Link>
