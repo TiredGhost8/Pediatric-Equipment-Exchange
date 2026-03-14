@@ -3,21 +3,27 @@ import Link from "next/link";
 export default function Login() {
   return (
     /* Full screen background */
-    <div className="flex min-h-screen items-center justify-center bg-teal-200 font-sans">
+    <div className="flex min-h-screen items-center justify-center bg-teal-400 font-sans">
 
-      {/* Middle column */}
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-teal-100 sm:items-start">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
+      {/* Middle box */}
+      <main className="flex min-h-screen w-4/6 max-w-screen flex-col items-center justify-between py-32 px-16 bg-teal-300 sm:items-start">
+        <div className="flex flex-col items-center gap-7 text-center sm:items-start sm:text-left">
 
           {/* Main and sub headers */}
-          <h1 className="max-w-xs text-4xl font-semibold leading-10 tracking-tight text-white">
-            Pediatric Adaptive Equipment Closet
+          <h1 className="max-w-xs text-6xl font-semibold tracking-tight leading-15 text-white">
+            <ul className = "space-y-3">
+              <li> Pediatric </li>
+              <li> Adaptive </li>
+              <li> Equipment </li>
+              <li> Closet </li>
+            </ul>
           </h1>
-          <h2 className="text-3xl font-semibold text-black"> Where Helping Families Comes First </h2>
-
+          
+          <h2 className="text-2xl font-semibold text-black"> Where Helping Families Comes First </h2>
+        
           {/* Login Redirect: EDIT LATER WITH AUTHENTICATION */}
           <Link 
-            className="flex h-12 w-full items-center justify-center rounded-full bg-pink-500 px-5 transition-colors hover:border-transparent hover:bg-pink-700  md:w-[158px] text-black"
+            className="flex h-12 w-full items-center justify-center rounded-full bg-rose-400 px-5 transition-colors hover:border-transparent hover:bg-rose-300  md:w-[158px] text-white"
             href="/inventory-gallery"
           >
             Login
