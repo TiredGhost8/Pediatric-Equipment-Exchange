@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Auth Setup Guide
 
-## Getting Started
-
-First, run the development server:
+## 1. Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install @supabase/supabase-js @supabase/ssr
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 2. Add environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create or update `.env.local` in your project root:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## Learn More
+Find these in your Supabase dashboard → Project Settings → API.
 
-To learn more about Next.js, take a look at the following resources:
+## 3. Set up the database
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run `supabase-setup.sql` in your **Supabase SQL Editor**. This creates:
+- A `profiles` table with a `role` column (`physical_therapist` | `volunteer`)
+- Row Level Security policies
+- A trigger that auto-creates a profile when a user signs up
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 4. Copy files into your repo
 
-## Deploy on Vercel
+| File | Destination in your repo |
+|------|--------------------------|
+| `lib/supabase.js` | `lib/supabase.js` |
+| `lib/supabase-server.js` | `lib/supabase-server.js` |
+| `app/login/page.jsx` | `app/login/page.jsx` |
+| `app/auth/callback/route.js` | `app/auth/callback/route.js` |
+| `middleware.js` | `middleware.js` (project root) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 5. Create users (admin flow)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Since this is for existing users only, create them via the Supabase dashboard:
+
+1. Go to **Authentication → Users → Add User**
+2. Enter their email + a temporary password
+3. Run this SQL to set their role:
+
+```sql
+insert into public.profiles (id, full_name, role)
+values ('their-user-uuid', 'Jane Doe', 'physical_therapist');
+-- or 'volunteer'
+```
+
+## 6. Role-based redirects
+
+After login, users are redirected based on their role:
+- `physical_therapist` → `/dashboard/pt`
+- `volunteer` → `/dashboard/volunteer`
+
+Update these paths in `app/login/page.jsx` to match your actual dashboard routes.
+
+## 7. Protect your routes
+
+The `middleware.js` automatically redirects unauthenticated users to `/login`.
+Public routes (no auth needed) are defined in the `publicRoutes` array — add more as needed.
