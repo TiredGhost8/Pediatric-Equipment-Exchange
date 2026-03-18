@@ -8,7 +8,7 @@ export default function EquipmentGallery() {
             <div className = "flex min-h-screen">
                  <SideBar />
                 
-                <main className = "flex-1 bg-teal-200">
+                <main className = "flex-1 bg-[#51b6b6]">
                     <div className ="text-2xl p-3"> Gallery Here </div>
                     {/* Passes the mock data to the gallery-logic component */}
                     <div className = "flex-1 p-6">

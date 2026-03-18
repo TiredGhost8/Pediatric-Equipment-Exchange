@@ -8,7 +8,7 @@ export default function EquipmentCard({item}: {item: ItemFields}) {
     return (
         <>
         <Link href={`/equipment/${item.id}`}>
-        <div className="hover:scale-105 hover:cursor-pointer hover:shadow-xl transition duration-100 border border-teal-200 rounded-3xl p-4 bg-teal-200"> 
+        <div className="hover:scale-105 hover:cursor-pointer hover:shadow-xl transition duration-100 border border-[#99d9d9] rounded-3xl p-4 bg-[#99d9d9]"> 
             <Image 
                 src = {item.image_url}
                 alt={item.name}
@@ -17,9 +17,9 @@ export default function EquipmentCard({item}: {item: ItemFields}) {
                 className="rounded-lg mx-auto"
                 priority 
                 />
-        <h1 className = "text-lg font-semibold mt-2"> {item.name} </h1>
-        <p className = "text-sm"> {item.status} </p>
-        <p className = "text-sm"> {item.condition} </p>
+        <h1 className = "text-lg font-semibold mt-2 text-[#132540]"> {item.name} </h1>
+        <p className = "text-sm text-[#132540]"> {item.status} </p>
+        <p className = "text-sm text-[#132540]"> {item.condition} </p>
         </div>
         </Link>
         </>
