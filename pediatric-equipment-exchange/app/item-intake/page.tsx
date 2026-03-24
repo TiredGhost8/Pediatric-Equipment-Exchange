@@ -3,22 +3,31 @@
 import SideBar from "@/components/sidebar";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ItemFields } from "@/mock-item-fields";
-import {
-  CONDITION_OPTIONS,
-  STATUS_OPTIONS,
-  CATEGORY_OPTIONS,
-  SUBCATEGORY_OPTIONS,
-  COLOR_OPTIONS,
-} from "@/item-field-options";
+import { CONDITION_OPTIONS, STATUS_OPTIONS, CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS, COLOR_OPTIONS,} from "@/item-field-options";
+import {useState} from 'react';
 
 export default function ItemIntake() {
   const { register, handleSubmit, formState: { errors } } = useForm<ItemFields>();
   const onSubmit: SubmitHandler<ItemFields> = (data) => console.log(data);
-
+  const  [open, setOpen] = useState(false);
+  
   return (
+
     <div className="flex min-h-screen w-full bg-[#51b6b6]">
-      {/* Sidebar */}
-        <SideBar />
+      {/* Mobile Menu Button*/}
+      <button 
+        onClick={() => setOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow">
+        ☰
+      </button>
+      
+      {/* Overlay (click to close) */}
+        {open && (
+          <div className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setOpen(false)}
+          />
+        )}
+        <SideBar isOpen={open} onClose={() => setOpen(false)} />
 
       {/* Main content */}
       <div className="flex flex-col md:flex-row w-full gap-3 border-teal-800S px-10 py-10">

@@ -1,29 +1,67 @@
+"use client"
+
 import { ItemFields } from "@/mock-item-fields";
 import Image from "next/image";
+import SideBar from "@/components/sidebar";
+import { useState } from 'react';
 
 export default function EquipmentDetails({ item }: { item: ItemFields })  {
+    const [open, setOpen] = useState(false);
 
-    return (
-        <>
+  return (
+    <div className="flex min-h-screen w-full bg-[#51b6b6]">
+
+        {/* Mobile Menu Button*/}
+        <button 
+            onClick={() => setOpen(true)}
+            className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow">
+            ☰
+        </button>
+
+        {/* Overlay (click to close) */}
+        {open && (
+            <div className="fixed inset-0 bg-black/50 z-30 md:hidden"
+            onClick={() => setOpen(false)}
+            />
+        )}
+        <SideBar isOpen={open} onClose={() => setOpen(false)} />
+
+    {/* Main Content */}
+    <div className="flex-1 p-6">
+
+            <h1 className="text-white text-2xl mb-4 text-center">Equipment Details</h1>
+
+            <div className="grid grid-cols-2 grid-rows-2 gap-4">
         
-        <div className="flex min-h-screen min-w-screen bg-teal-800">
-            <h1 className="text-white text-2xl"> Equipment Details </h1>
-            <div> 
-            <Image 
-                src = {item.image_url}
-                alt={item.name}
-                width = {150}
-                height = {150}
-                className="rounded-lg mx-auto"
-                priority 
-                />
-                </div>
-            <ul className="text-white"> 
-                <li> Item Name: {item.name} </li>
-                <li> Item Status: {item.status} </li>
-                <li> Item Description: {item.description} </li>
-            </ul>
+        {/* Top Left - Image */}
+            <div className="bg-white rounded-lg col-start-1 row-start-1 flex items-center justify-center">
+          <Image 
+            src={item.image_url}
+            alt={item.name}
+            width={150}
+            height={150}
+            className="rounded-lg"
+            priority 
+          />
         </div>
-        </>
-    )
+
+        {/* Bottom Left - QR Placeholder */}
+        <div className="bg-white rounded-lg col-start-1 row-start-2 flex items-center justify-center">
+          <p className="text-gray-500">BarCode Here</p>
+        </div>
+
+        {/* Right Side - Details (spans 2 rows) */}
+        <div className="bg-white rounded-lg p-4 col-start-2 row-start-1 row-span-2">
+          <ul className="text-[#132540] space-y-2">
+            <li><strong>Item Name:</strong> {item.name}</li>
+            <li><strong>Status:</strong> {item.status}</li>
+            <li><strong>Description:</strong> {item.description}</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+</div>
+  );
 }

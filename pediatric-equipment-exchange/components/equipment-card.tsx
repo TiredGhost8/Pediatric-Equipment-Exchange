@@ -17,8 +17,8 @@ export default function EquipmentCard({item}: {item: ItemFields}) {
                 className="rounded-lg mx-auto"
                 priority 
                 />
-        <h1 className = "text-lg font-semibold mt-2 text-[#132540]"> {item.name} </h1>
-        <p className = "text-sm text-[#132540]"> {item.status} </p>
+        <h1 className = "text-lg font-semibold mt-2 text-[#132540] leading-none"> {item.name} </h1>
+        <p className = "text-sm mt-2 text-[#132540]"> {item.status} </p>
         <p className = "text-sm text-[#132540]"> {item.condition} </p>
         </div>
         </Link>

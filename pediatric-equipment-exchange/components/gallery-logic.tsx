@@ -32,7 +32,7 @@ export default function GalleryGrid( {items}: Props) {
                 </div>
 
                 {/* All equipment cards are being displayed in this grid */}
-                <div className = "mt-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 bg-white p-6 rounded-3xl">
+                <div className = "mt-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 bg-white p-6 rounded-3xl">
 
                     {/* Creating an equipment-card component for each item */}
                     {itemMatches.map((item) => {
