@@ -2,7 +2,7 @@
 
 import SideBar from "@/components/sidebar";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { ItemFields } from "@/mock-item-fields";
+import { ItemFields } from "@/field_interfaces";
 import { CONDITION_OPTIONS, STATUS_OPTIONS, CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS, COLOR_OPTIONS,} from "@/item-field-options";
 import {useState} from 'react';
 

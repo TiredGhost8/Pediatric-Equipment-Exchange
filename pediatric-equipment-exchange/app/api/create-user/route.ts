@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const {data, error } = await supabase.auth.admin.createUser({
         email,
         password,
-        user_metadate: {
+        user_metadata: {
             username,
         },
     });

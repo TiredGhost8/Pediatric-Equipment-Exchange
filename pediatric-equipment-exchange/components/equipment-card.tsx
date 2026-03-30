@@ -1,4 +1,4 @@
-import { ItemFields } from "@/mock-item-fields"
+import { ItemFields } from "@/field_interfaces"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -10,7 +10,7 @@ export default function EquipmentCard({item}: {item: ItemFields}) {
         <Link href={`/items/${item.id}`}>
         <div className="hover:scale-105 hover:cursor-pointer hover:shadow-xl transition duration-100 border border-[#99d9d9] rounded-3xl p-4 bg-[#99d9d9]"> 
             <Image 
-                src = {item.image_url}
+                src = {item.image_urls[0]}
                 alt={item.name}
                 width = {150}
                 height = {150}

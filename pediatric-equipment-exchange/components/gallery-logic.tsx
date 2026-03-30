@@ -1,7 +1,7 @@
 "use client";
 
 import EquipmentCard from "@/components/equipment-card";
-import { ItemFields } from "@/mock-item-fields";
+import { ItemFields } from "@/field_interfaces";
 import { useState } from "react";
 
 interface Props {

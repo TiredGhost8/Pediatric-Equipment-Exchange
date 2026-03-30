@@ -1,4 +1,4 @@
-import { ItemFields } from "./mock-item-fields" 
+import { ItemFields } from "./field_interfaces" 
 
 export const mockData: ItemFields[] = [
     { id: 1,
@@ -10,7 +10,7 @@ export const mockData: ItemFields[] = [
     color: "Yellow",
     status: "Available",
     donor: "Stacy M.",
-    image_url: "/adaptive-tray.jpg",
+    image_urls: ["/adaptive-tray.jpg", "/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/9/2026" }, 
 
@@ -23,7 +23,7 @@ export const mockData: ItemFields[] = [
     color: "Blue",
     status: "Available",
     donor: "Ashley S.",
-    image_url: "/posterior-walker.jpg",
+    image_urls: ["/posterior-walker.jpg", "/adaptive-tray.jpg", "/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
@@ -36,7 +36,7 @@ export const mockData: ItemFields[] = [
     color: "Green",
     status: "In Processing",
     donor: "Ashley S.",
-    image_url: "/posterior-walker.jpg",
+    image_urls: ["/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
@@ -46,9 +46,9 @@ export const mockData: ItemFields[] = [
     category: "Activity Chair",
     size: "Small",
     color: "Yellow",
-    status: "Permanently Allocated",
+    status: "Allocated",
     donor: "Ashley S.",
-    image_url: "/adaptive-tray.jpg",
+    image_urls: ["/adaptive-tray.jpg", "/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
@@ -60,7 +60,7 @@ export const mockData: ItemFields[] = [
     color: "Red",
     status: "Available",
     donor: "Ashley S.",
-    image_url: "/posterior-walker.jpg",
+    image_urls: ["/posterior-walker.jpg", "/adaptive-tray.jpg", "/posterior-walker.jpg", "/adaptive-tray.jpg" ],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
@@ -72,7 +72,7 @@ export const mockData: ItemFields[] = [
     color: "Purple",
     status: "Available",
     donor: "Ashley S.",
-    image_url: "/posterior-walker.jpg",
+    image_urls: ["/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
@@ -84,9 +84,9 @@ export const mockData: ItemFields[] = [
     color: "Blue",
     status: "Available",
     donor: "Ashley S.",
-    image_url: "/adaptive-tray.jpg",
+    image_urls: ["/adaptive-tray.jpg"],
     qr_code_url: "To-do",
-    created_at: "9/10/2026" }, 
+    created_at: "8/2/2026" }, 
 
     { id: 8,
     name: "Item 8",
@@ -97,7 +97,7 @@ export const mockData: ItemFields[] = [
     color: "Pink",
     status: "Available",
     donor: "Ashley S.",
-    image_url: "/posterior-walker.jpg",
+    image_urls: ["/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
@@ -106,13 +106,27 @@ export const mockData: ItemFields[] = [
     category: "Wheelchair",
     subcategory: "Manual Folding",
     condition: "Acceptable",
-    description: "Good for kids",
+    description: 
+        "Good for kids. This is a long description to check how it looks when the description length is longer. Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs  Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs Text text text text text afkljs",
     size: "XS",
     color: "Silver",
     status: "Available",
     donor: "Ashley S.",
-    image_url: "/posterior-walker.jpg",
+    image_urls: ["/posterior-walker.jpg"],
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
+
+    { id: 10,
+    name: "Item 10",
+    category: "Other",
+    condition: "Excellent",
+    description: "Really great item",
+    size: "XS",
+    color: "Green",
+    status: "Reserved",
+    donor: "Ashley S.",
+    image_urls: ["/posterior-walker.jpg"],
+    qr_code_url: "To-do",
+    created_at: "9/10/2026" }
 
 ]
