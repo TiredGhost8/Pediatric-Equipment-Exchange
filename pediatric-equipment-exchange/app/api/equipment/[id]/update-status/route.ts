@@ -13,7 +13,7 @@ const supabase = createClient(
 export async function POST(req: Request) {
 
   const {equipment_id, target_status, current_status, waiver_signed, distribution_id, staff_member, reservationFormData} = await req.json();
-  
+
   // helper functions
 
   // update status in equipment table
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       .select()
       .single();
     if (error) throw error;
-      return data;
+    return data;
   };
 
   // create an entry in recipient table
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       .select()
       .single();
     if (error) throw error;
-      return recipient.id; // need this for creating/editing an entry in the Distributions table
+    return recipient.id; // need this for creating/editing an entry in the Distributions table
   };
 
   // create an entry in distributions table (item is reserved)
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       .select()
       .single();
     if (error) throw error;
-      return data;
+    return data;
   };
 
   // update allocated_at status in Distributions table (item is physically picked up  by family)
@@ -67,12 +67,12 @@ export async function POST(req: Request) {
     if (!distribution_id) throw new Error("Cannot return item, entry in distributions table not found");
     const { data, error } = await supabase
       .from("distributions")
-      .update({ alolcated_at: new Date().toISOString() })
+      .update({ allocated_at: new Date().toISOString() })
       .eq("id", distribution_id)
       .select()
       .single();
     if (error) throw error;
-      return data;
+    return data;
   };
 
   // update returned_at status in Distributions table
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
       .select()
       .single();
     if (error) throw error;
-      return data;
+    return data;
   };
 
   // try to update the status
@@ -113,9 +113,15 @@ export async function POST(req: Request) {
     case "Available":
       // if allocated -> available or reserved -> available, it means the item is being returned
       if (current_status === "Allocated" || current_status === "Reserved") {
-        await updateReturnedAt();
-        result = await updateEquipmentStatus("Available");
-      } else {
+        try {
+          result = await updateEquipmentStatus("Available");
+          await updateReturnedAt(); // only gets here if updateEquipmentStatus doesn't throw
+        } catch(error) {
+          console.log("Failed to update returned_at field, rolling back to original status");
+          await updateEquipmentStatus(current_status); // rollback to original status
+        }
+      }
+      else {
         result = await updateEquipmentStatus("Available"); // in processing -> available
       }
       break;
@@ -124,8 +130,13 @@ export async function POST(req: Request) {
       if (current_status === "Available") { // available -> in processing
         result = await updateEquipmentStatus("In Processing");
       } else if (current_status === "Allocated") { // allocated -> in processing means the item is being returned
-        await updateReturnedAt();
-        result = await updateEquipmentStatus("In Processing");
+          try {
+            result = await updateEquipmentStatus("In Processing");
+            await updateReturnedAt(); // only gets here if updateEquipmentStatus doesn't throw
+          } catch(error) {
+            console.log("Failed to update returned_at field, rolling back to original status");
+            await updateEquipmentStatus(current_status);
+        }
       } else {
         throw new Error( `Cannot go from Reserved to In Processing, make item Available first`);
       }
@@ -133,9 +144,25 @@ export async function POST(req: Request) {
 
     case "Reserved":
       if (current_status === "Available") { // available -> reserved, create recipient data based on reservation form info & start distribution entry
-        const recipient_id = await createRecipient(reservationFormData);
-        result = await createDistribution(recipient_id);
-        await updateEquipmentStatus("Reserved");
+
+        // handle deleting the recipient/distribution information if one of them fails
+        let created_recipient:any=null;
+        let created_distribution:any=null;
+        try {
+          await updateEquipmentStatus("Reserved");
+          created_recipient = await createRecipient(reservationFormData); //only creates if updateEquipmentStatus doesn't throw error
+          result = await createDistribution(created_recipient); // only creates if createRecipient doesn't throw error
+          created_distribution = result.id;
+        } catch(error) {
+            console.log("Error reserving item, rolling back to original status");
+            await updateEquipmentStatus(current_status);
+            if(created_recipient) { // pass the newly created id's to the table to delete them since an erorr happened
+              await supabase.from("recipient").delete().eq("id", created_recipient);
+            }
+            if(created_distribution) {
+              await supabase.from("distributions").delete().eq("id", created_distribution);
+            }
+        }
       } else {
         throw new Error(`Cannot go from ${current_status} to Reserved, Only Available items can be Reserved`);
       }
@@ -144,8 +171,13 @@ export async function POST(req: Request) {
     case "Allocated":
       if (current_status === "Reserved") { // reserved -> allocated, family physically picks up item. Check waiver signature, update allocated_at entry in distributions table
         if (!waiver_signed) throw new Error("Waiver must be signed before allocation");
-          result = await updateAllocatedAt();
-          await updateEquipmentStatus("Allocated");
+        try {
+          result = await updateEquipmentStatus("Allocated");
+          await updateAllocatedAt(); // only gets here if updateEquipmentStatus doesn't throw
+        } catch(error) {
+          console.log("Failed to update allocated_at field, rolling back to original status");
+          await updateEquipmentStatus(current_status);
+        }
       } else {
         throw new Error(`Cannot go from ${current_status} to Allocated, Items must be Reserved before allocation`);
       }

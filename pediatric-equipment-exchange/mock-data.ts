@@ -1,7 +1,7 @@
 import { ItemFields } from "./field_interfaces" 
 
 export const mockData: ItemFields[] = [
-    { id: 1,
+    { id: "550e8400-e29b-41d4-a716-446655440000",
     name: "Adaptive Tray",
     category: "Adaptive Tray",
     condition: "Broken/Missing Pieces",
@@ -14,7 +14,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/9/2026" }, 
 
-    { id: 2,
+    { id: "750e8300-e29b-42d4-a136-446656640000",
     name: "Blue Posterior Walker",
     category: "Walker",
     subcategory: "Posterior",
@@ -27,7 +27,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 3,
+    { id: "178e9800-e39b-42d4-a136-886656640000",
     name: "Silver Manual Rigid Wheelchair",
     category: "Wheelchair",
     subcategory: "Manual Rigid",
@@ -40,7 +40,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 4,
+    { id: "650e4300-e21b-22d4-a137-446656640098",
     name: "Activity Chair",
     condition: "Needs Cleaning",
     category: "Activity Chair",
@@ -52,7 +52,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 5,
+    { id: "750e3210-e29b-42d4-a136-446656221000",
     name: "Item 5",
     category: "Gait Trainer",
     condition: "Good",
@@ -64,7 +64,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 6,
+    { id: "960e8300-e29b-12d4-a176-876652140000",
     name: "Item 6",
     category: "Adaptive Tricycle",
     condition: "Broken/Missing Pieces",
@@ -76,7 +76,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 7,
+    { id: "841e8300-e29b-42d4-a136-446656646678",
     name: "Item 7",
     category: "Forearm Crutches",
     condition: "Good",
@@ -88,7 +88,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "8/2/2026" }, 
 
-    { id: 8,
+    { id: "670e8310-e39b-47d4-a131-486696640000",
     name: "Item 8",
     category: "Wheelchair",
     subcategory: "Sport",
@@ -101,7 +101,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 9,
+    { id: "236e9851-e49b-42d6-a962-541362540000",
     name: "Item 9",
     category: "Wheelchair",
     subcategory: "Manual Folding",
@@ -116,7 +116,7 @@ export const mockData: ItemFields[] = [
     qr_code_url: "To-do",
     created_at: "9/10/2026" }, 
 
-    { id: 10,
+    { id: "852e8300-e96b-72d4-a136-446656641049",
     name: "Item 10",
     category: "Other",
     condition: "Excellent",

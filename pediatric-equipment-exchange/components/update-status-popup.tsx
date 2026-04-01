@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Popup from "@/components/popup"; 
 import { STATUS_OPTIONS } from "@/item-field-options";
+import Link from "next/link";
 
 interface reservationForm {
     name: string;
@@ -17,7 +18,7 @@ interface reservationForm {
 }
 
 interface UpdateStatusProps {
-    equipment_id: number;
+    equipment_id: string;
     staff_member: string,
     distribution_id: string,
     waiver_signed: boolean,
@@ -51,7 +52,7 @@ export default function UpdateStatusPopup({equipment_id, staff_member, distribut
     };
 
     const updateEquipmentStatus = async (
-        equipment_id: number,
+        equipment_id: string,
         target_status: string,
         current_status: string,
         waiver_signed: boolean,
@@ -93,31 +94,45 @@ export default function UpdateStatusPopup({equipment_id, staff_member, distribut
         onClose(); // close the popup
     } 
 
+     // give different statuses different colors
+    const getStatusColor = () => {
+        switch(current_status) {
+            case "Available": return "bg-green-400";
+            case "Reserved":  return "bg-yellow-500";
+            case "Allocated": return "bg-red-800";
+            case "In Processing": return "bg-sky-400";
+    }
+  }
+
+
     return (
         <>
         <Popup isOpen={isOpen} onClose ={handleClose}> 
 
             {/* status buttons  */}
             <h1 className="text-3xl text-center font-bold mb-4"> Update Status </h1>
-            <p className= "py-3 text-xl mb-4"> Current status: <strong className="text-green-400">{current_status} </strong> </p>
+            <p className= "py-3 text-xl"> Current status: </p>
+
+            {/* show current status above the "choose status" area */}
+            <div className={`flex flex-1 justify-center p-3 rounded-lg ${getStatusColor()} mb-10`}>
+                <span className="text-white font-bold text-center">
+                            {current_status} {/* span text  */}
+                </span>
+            </div>
+
             <p className= "text-xl mb-4"> Select which status to update to: </p>
         
             <div className="flex flex-col gap-10"> 
-                {STATUS_OPTIONS.map((status) => (
-                    // create the status buttons, but do not make the current status into a button
-                    current_status === status? (
-                        <span key={status} className="text-white font-bold rounded px-4 py-2 bg-green-400 text-center">
-                            {status} {/* span text  */}
-                        </span>
-                    ) : (
-                        <button key={status}
-                        onClick={() => handleTargetStatusChange(status)}
-                        className={"p-3 text-white rounded bg-teal-700 hover:cursor-pointer hover:bg-teal-900 hover:scale-105"}
+                {STATUS_OPTIONS.filter(status_option => status_option !== current_status).map(status_option => (
+                    // create the status buttons
+                        <button key={status_option}
+                        onClick={() => handleTargetStatusChange(status_option)}
+                        className={"p-3 text-white rounded-lg bg-teal-700 hover:cursor-pointer hover:bg-teal-900 hover:scale-105"}
                         >
-                            {status} {/* button text */}
+                            {status_option} {/* button text */}
                         </button>
                     )
-                ))
+                )
                 }
             </div>
 
@@ -160,6 +175,15 @@ export default function UpdateStatusPopup({equipment_id, staff_member, distribut
                         className="bg-rose-400 border border-black rounded-3xl px-6 py-2 text-2xl text-white hover:bg-rose-300 cursor-pointer"/>
                 </form>
                 </div>
+                </>
+            }
+
+            {/* // if the status is reserved, show if the waiver has been signed or not */}
+            {(current_status === "Reserved" || current_status === "Allocated") &&
+                <>
+                <p className="text-xl py-10"> WAIVER STATUS:  <strong > {waiver_signed? "Signed" : "Unsigned" } </strong> </p>
+                <Link href= {`/items/${equipment_id}/waiver`} className="bg-yellow-400 hover:opacity-70 hover:cursor-pointer border rounded-3xl p-3 text-xl text-white font-mono"  
+                    > View / Sign Waiver </Link>
                 </>
             }
          </Popup>

@@ -4,7 +4,7 @@ import EquipmentDetails from "@/components/equipment-details";
 import { mockData } from "@/mock-data";
 
 interface Props {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function Item({ params }: Props) {

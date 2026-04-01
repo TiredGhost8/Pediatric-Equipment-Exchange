@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useState } from 'react';
 import SideBar from "@/components/sidebar";
 import UpdateStatusPopup from "@/components/update-status-popup";
+import {useForm, SubmitHandler} from "react-hook-form";
+import { CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS, CONDITION_OPTIONS, COLOR_OPTIONS } from "@/item-field-options";
 
 export default function EquipmentDetails({ item }: { item: ItemFields })  {
 
@@ -16,6 +18,20 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
 
   // have to send distribution info to update-status-popup in case the item is being returned
   const [distribution, setDistribution] = useState<any>(null);
+
+  const [isEditing, setIsEditing] = useState(false); // for editing item details, will use a form from react-hook-form
+  const { register, handleSubmit} = useForm({ defaultValues: item })
+
+  const onSubmit: SubmitHandler<ItemFields> = async (data) => {
+      const res = await fetch(`/api/equipment/${item.id}/update-other-fields`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", },
+        body: JSON.stringify({data}),
+      });
+        const creationResponse = await res.json();
+        console.log(creationResponse);
+      };
+  
 
   const getDistributionEntry = async () => {
     const res = await fetch(`/api/distributions/${item.id}`);
@@ -105,7 +121,11 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
             <div className="flex flex-col gap-4 min-h-[30rem]">
 
               {/* Top right box for Item Details */}
-              <div className="bg-white rounded-lg p-4 flex-1 min-h-[30rem]"> 
+              <div className="bg-white rounded-lg p-4 flex flex-col flex-1 min-h-[30rem]">
+
+              {/* Regular view */}
+              {!isEditing &&
+                <>
                 <ul className="text-[#132540] text-lg space-y-3 font-mono">
                   <li className="text-3xl text-center mb-6"> <span><strong>Item Name:</strong> {item.name} </span> </li>
                   <li><strong>Category:</strong> {item.category}</li>
@@ -115,6 +135,88 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                   <li><strong>Color:</strong> {item.color}</li>
                   <li><strong>Description:</strong> {item.description? item.description : "N/A"}</li>
                 </ul>
+                <button className="text-md mt-auto hover:cursor-pointer hover:opacity-70" onClick={()=>setIsEditing(true)}> ✎ Edit Details </button>
+                </>
+              }
+              
+              {/* Edit mode */}
+              {isEditing && 
+                <ul className="text-[#132540] text-lg space-y-3 font-mono">
+                
+                  <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1 w-full p-4">
+
+                    <li className="flex items-center justify-center gap-3 mb-6 text-3xl text-black">
+                      <strong>Item Name:</strong>
+                      <input className="border rounded px-2 py-1 text-center"
+                      {...register("name")} /> 
+                    </li>
+
+                    <li className="flex items-center gap-3">
+                      <strong> Category: </strong>
+                      <select className="border rounded px-2 py-1 text-center"
+                        {...register("category")}
+                      >
+                        {CATEGORY_OPTIONS.map((category) => (
+                          <option key={category} value={category} className="bg-white">{category}</option>
+                        ))}
+                      </select>
+                    </li>
+                          
+                    <li className="flex items-center gap-3">
+                      <strong> Subcategory: </strong>
+                      <select className="border rounded px-2 py-1 text-center"
+                        {...register("subcategory")}
+                      >
+                        {SUBCATEGORY_OPTIONS.map((subcategory) => (
+                          <option key={subcategory} value={subcategory} className="bg-white">{subcategory}</option>
+                        ))}
+                      </select>
+                    </li>
+
+                    <li className="flex items-center gap-3">
+                      <strong> Condition: </strong>
+                      <select className="border rounded px-2 py-1 text-center"
+                        {...register("condition")}
+                      >
+                        {CONDITION_OPTIONS.map((condition) => (
+                          <option key={condition} value={condition} className="bg-white">{condition}</option>
+                        ))}
+                      </select>
+                    </li>
+
+                    <li className="flex items-center gap-3">
+                      <strong> Size: </strong>
+                      <input className="border rounded px-2 py-1 text-center text-black"
+                      {...register("size")} /> 
+                    </li>
+                    
+                    <li className="flex items-center gap-3">
+                      <strong> Color: </strong>
+                      <select className="border rounded px-2 py-1 text-center"
+                        {...register("color")}
+                      >
+                        {COLOR_OPTIONS.map((color) => (
+                          <option key={color} value={color} className="bg-white">{color}</option>
+                        ))}
+                      </select>
+                    </li>
+                                
+                    <li className="flex items-center gap-3">
+                      <strong> Item Description: </strong>
+                      <textarea className="border rounded px-2 py-1 text-center focus:ring" 
+                        rows={5}
+                        cols={50}
+                        {...register("description")} /> 
+                    </li>
+                    <div className="mt-auto flex gap-180">
+                      <button className="font-sans text-[#686dd3] font-arial text-sm mt-auto hover:cursor-pointer hover:opacity-70"
+                        onClick={()=>setIsEditing(false)}> Cancel Edit </button>
+                      <button type="submit" className="text-[#686dd3] font-sans  text-sm mt-auto hover:cursor-pointer hover:opacity-70"> 
+                          Save Details </button>
+                    </div>
+                  </form>
+                </ul>
+              }
               </div>
 
               {/* Bottom right box for Status details & Change Status button */}

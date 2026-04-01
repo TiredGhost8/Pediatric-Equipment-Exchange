@@ -12,7 +12,7 @@ export async function GET(req: Request, details: { params: any }) {
 
     const { id } = await details.params; // unwrap the Promise
 
-    const equipment_id = Number(id); // convert the string equipment_id to int again
+    const equipment_id = id; 
 
     const { data, error } = await supabase
     .from("distributions")
