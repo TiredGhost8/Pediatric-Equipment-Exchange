@@ -2,11 +2,13 @@
 
 import GalleryGrid from "@/components/gallery-logic";
 import SideBar from "@/components/sidebar";
+import LoadingBar from "@/components/loading-wheel";
 import { useState, useEffect } from "react";
 
 export default function EquipmentGallery() {
 
     const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
     
     // useEffect ensures that the fetch is done before we get to the stuff in the return statemnt
     useEffect(() => {
@@ -16,6 +18,7 @@ export default function EquipmentGallery() {
                 const data = await res.json();
                 setItems(data);
                 console.log(data);
+                setLoading(false);
             } catch(error) {
                 throw new Error("COuld not fetch equipment")
             }
@@ -30,7 +33,7 @@ export default function EquipmentGallery() {
                 <div className ="text-2xl p-3"> Gallery Here </div>
                     {/* Passes the itmes to the gallery-logic component */}
                     <div className = "flex-1 p-6">
-                        <GalleryGrid items ={items} />
+                        <GalleryGrid items ={items} loading={loading}/>
                     </div>
                 </main>
             </div>  
