@@ -2,7 +2,6 @@
 
 import GalleryGrid from "@/components/gallery-logic";
 import SideBar from "@/components/sidebar";
-import LoadingBar from "@/components/loading-wheel";
 import { useState, useEffect } from "react";
 
 export default function EquipmentGallery() {

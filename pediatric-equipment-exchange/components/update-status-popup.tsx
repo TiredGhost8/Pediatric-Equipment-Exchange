@@ -22,12 +22,13 @@ interface UpdateStatusProps {
     staff_member: string,
     distribution_id: string,
     waiver_signed: boolean,
-    current_status: string
-    isOpen: boolean // to show the popup
+    current_status: string,
+    onStatusChange: (updatedStatus: string) => void, // need this to trigger a re-render of the "current status" box
+    isOpen: boolean, // to show the popup
     onClose: () => void, // to close the popup
 }
 
-export default function UpdateStatusPopup({equipment_id, staff_member, distribution_id, waiver_signed, current_status, isOpen, onClose}: UpdateStatusProps) {
+export default function UpdateStatusPopup({equipment_id, staff_member, distribution_id, waiver_signed, current_status, isOpen, onClose, onStatusChange}: UpdateStatusProps) {
 
     // the reservation form using react-hook-form
     const {register, handleSubmit, reset, formState: {errors}} = useForm<reservationForm>();
@@ -48,6 +49,7 @@ export default function UpdateStatusPopup({equipment_id, staff_member, distribut
             setReservationFormOpen(true); 
         } else {
             await updateEquipmentStatus(equipment_id, target_status, current_status, waiver_signed, distribution_id, staff_member);
+            onClose();
         }
     };
 
@@ -85,6 +87,7 @@ export default function UpdateStatusPopup({equipment_id, staff_member, distribut
             return;
         }
         alert("Status updated successfully");
+        onStatusChange(target_status); // re-render the current status
     }   
 
     // for submitting the reservation form (target status is "Reserved" since the form only shows in that case)
@@ -175,15 +178,6 @@ export default function UpdateStatusPopup({equipment_id, staff_member, distribut
                         className="bg-rose-400 border border-black rounded-3xl px-6 py-2 text-2xl text-white hover:bg-rose-300 cursor-pointer"/>
                 </form>
                 </div>
-                </>
-            }
-
-            {/* // if the status is reserved, show if the waiver has been signed or not */}
-            {(current_status === "Reserved" || current_status === "Allocated") &&
-                <>
-                <p className="text-xl py-10"> WAIVER STATUS:  <strong > {waiver_signed? "Signed" : "Unsigned" } </strong> </p>
-                <Link href= {`/items/${equipment_id}/waiver`} className="bg-yellow-400 hover:opacity-70 hover:cursor-pointer border rounded-3xl p-3 text-xl text-white font-mono"  
-                    > View / Sign Waiver </Link>
                 </>
             }
          </Popup>

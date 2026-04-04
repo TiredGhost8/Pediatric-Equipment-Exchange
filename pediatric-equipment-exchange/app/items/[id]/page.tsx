@@ -19,7 +19,13 @@ export default async function Item(details: { params: any }) {
     .single();
 
   if (!item) {
-    return <div>Item not found</div>;
+    return (
+      <div className="flex flex-1 bg-teal-700 h-screen justify-center items-center"> 
+        <div className="flex bg-white w-1/2 h-1/2 items-center justify-center"> 
+          <p className="text-6xl text-red-400 text-center font-mono"> Item not found! ☹ </p>
+        </div>
+      </div>
+    )
   }
 
   return <EquipmentDetails item={item} />;

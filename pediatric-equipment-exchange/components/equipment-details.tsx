@@ -2,47 +2,62 @@
 
 import { ItemFields } from "@/field_interfaces";
 import Image from "next/image";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SideBar from "@/components/sidebar";
 import UpdateStatusPopup from "@/components/update-status-popup";
 import {useForm, SubmitHandler} from "react-hook-form";
 import { CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS, CONDITION_OPTIONS, COLOR_OPTIONS } from "@/item-field-options";
+import Link from "next/link";
 
 export default function EquipmentDetails({ item }: { item: ItemFields })  {
 
   const [statusPageOpen, setStatusPageOpen] = useState(false); // for changing the status
-
+  const [mostRecentStatus, setMostRecentStatus] = useState(item.status); // to immediately show the updated status if it gets changed
   const [imageIndex, setImageIndex] = useState(0); // for scrolling through images
+  const [isEditing, setIsEditing] = useState(false); // for editing item details, will use a form from react-hook-form
+  const [itemDetails, setItemDetails] = useState(item); // to immediately show the new item details if they get changed
+  const { register, handleSubmit} = useForm({ defaultValues: item }) // form for editing details
 
   // have to send distribution info to update-status-popup in case the item is being returned
   const [distribution, setDistribution] = useState<any>(null);
 
-  const [isEditing, setIsEditing] = useState(false); // for editing item details, will use a form from react-hook-form
-  const { register, handleSubmit} = useForm({ defaultValues: item })
-
+  // call the api when they edit anything
   const onSubmit: SubmitHandler<ItemFields> = async (data) => {
+    try {
       const res = await fetch(`/api/equipment/${item.id}/update-other-fields`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", },
-        body: JSON.stringify({data}),
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify({
+          equipment_id: item.id,
+          newFieldsForm: data})
       });
-        const creationResponse = await res.json();
-        console.log(creationResponse);
-      };
-  
+      const result = await res.json();
+      console.log(data);
 
-  const getDistributionEntry = async () => {
-    const res = await fetch(`/api/distributions/${item.id}`);
-    const data = await res.json();
-    setDistribution(data);
-    console.log("Distribution data:", data);
+      if (!res.ok) {
+        console.error(result.error);
+        alert("Update failed");
+      } else {
+        alert("Item updated succesfully!");
+        setItemDetails(data);
+        setIsEditing(false);
+      }
+    } catch (err) {
+      console.error("Request failed:", err);
+    }
   };
-
-  // open popup for changing status
-  const openStatusPopup = async () => {
-    if(!distribution) { await getDistributionEntry(); }
-    setStatusPageOpen(true);   
-  }
+  
+  // fetch the distribution info once item details page is opened
+  useEffect(() => {
+    if (!item?.id || distribution) return; 
+    const fetchDistributionEntry = async () => {
+      const res = await fetch(`/api/distributions/${item.id}`);
+      const data = await res.json();
+      setDistribution(data);
+      console.log("Distribution data:", data);
+    }
+    fetchDistributionEntry(); 
+  }, [item?.id, distribution]);
 
   // helpers to scroll through images; wrap around when end of array is reached
   const handlePrevImage = () => {
@@ -57,7 +72,7 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
 
   // give different statuses different colors
   const getStatusColor = () => {
-    switch(item.status) {
+    switch(mostRecentStatus) {
       case "Available": return "bg-green-400";
       case "Reserved":  return "bg-yellow-500";
       case "Allocated": return "bg-red-800";
@@ -70,7 +85,7 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
     <div className="flex min-h-screen w-full bg-[#51b6b6]">
 
         <SideBar />
-        
+
         {/* Main Content */}
         <div className="flex-1 p-8 py-15 mb-10 w-full h-full">
 
@@ -82,8 +97,8 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
             {/* Left Column - Image array that can be clicked through*/}
             <div className="bg-white p-6 rounded-lg flex flex-col items-center justify-center min-h-[25rem]">
               <Image 
-                src={item.image_urls?.[0] ? item.image_urls[0]: "/missing-image.png"}
-                alt={item.name}
+                src={itemDetails.image_urls?.[imageIndex] ? itemDetails.image_urls[imageIndex]: "/missing-image.png"}
+                alt={itemDetails.name}
                 width={250}
                 height={150}
                 className="rounded-lg w-full max-w-sm md:max-w-md object-contain"
@@ -92,13 +107,13 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
               {/* Buttons to click through the images */}
               <div className="flex justify-between w-full mt-6">
                 <button className="text-6xl text-rose-400 flex items-center justify-center hover:opacity-70 hover:cursor-pointer disabled:text-gray-300 disabled:cursor-not-allowed"
-                  onClick={handlePrevImage} disabled={item.image_urls? item.image_urls.length===1 : true}> ◀ </button>
+                  onClick={handlePrevImage} disabled={itemDetails.image_urls? itemDetails.image_urls.length===1 : true}> ◀ </button>
 
                   {/* Track which image */}
-                  <p className="text-black"> {imageIndex + 1} of {item.image_urls? item.image_urls.length : "1"} </p>
+                  <p className="text-black"> {imageIndex + 1} of {itemDetails.image_urls? itemDetails.image_urls.length : "1"} </p>
 
                 <button className="text-6xl text-rose-400 flex items-center justify-center hover:opacity-70 hover:cursor-pointer disabled:text-gray-300 disabled:cursor-not-allowed"
-                  onClick={handleNextImage} disabled={item.image_urls? item.image_urls.length===1 : true}> ▶ </button>
+                  onClick={handleNextImage} disabled={itemDetails.image_urls? itemDetails.image_urls.length===1 : true}> ▶ </button>
               </div>
             </div> 
 
@@ -111,14 +126,14 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
               {/* Regular view */}
               {!isEditing &&
                 <>
-                <ul className="text-[#132540] text-lg space-y-3 font-mono">
-                  <li className="text-3xl text-center mb-6"> <span><strong>Item Name:</strong> {item.name} </span> </li>
-                  <li><strong>Category:</strong> {item.category}</li>
-                  <li><strong>Subcategory:</strong> {item.subcategory? item.subcategory : "N/A"}</li>
-                  <li><strong>Condition:</strong> {item.condition}</li>
-                  <li><strong>Size:</strong> {item.size}</li>
-                  <li><strong>Color:</strong> {item.color}</li>
-                  <li><strong>Description:</strong> {item.description? item.description : "N/A"}</li>
+                <ul className="text-[#132540] text-lg space-y-3 font-mono flex-1">
+                  <li className="text-3xl text-center mb-6"> <span><strong>Item Name:</strong> {itemDetails.name} </span> </li>
+                  <li><strong>Category:</strong> {itemDetails.category}</li>
+                  <li><strong>Subcategory:</strong> {itemDetails.subcategory? itemDetails.subcategory : "N/A"}</li>
+                  <li><strong>Condition:</strong> {itemDetails.condition}</li>
+                  <li><strong>Size:</strong> {itemDetails.size? itemDetails.size : "N/A"}</li>
+                  <li><strong>Color:</strong> {itemDetails.color}</li>
+                  <li><strong>Description:</strong> {itemDetails.description? itemDetails.description : "N/A"}</li>
                 </ul>
                 <button className="text-md mt-auto hover:cursor-pointer hover:opacity-70" onClick={()=>setIsEditing(true)}> ✎ Edit Details </button>
                 </>
@@ -126,19 +141,19 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
               
               {/* Edit mode */}
               {isEditing && 
-                <ul className="text-[#132540] text-lg space-y-3 font-mono">
+                <ul className="text-[#132540] text-lg space-y-3 font-mono h-full">
                 
-                  <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1 w-full p-4">
+                  <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 gap-1">
 
                     <li className="flex items-center justify-center gap-3 mb-6 text-3xl text-black">
                       <strong>Item Name:</strong>
-                      <input className="border rounded px-2 py-1 text-center"
+                      <input className="border rounded px-2 py-1 text-center text-3xl leading-tight"
                       {...register("name")} /> 
                     </li>
 
                     <li className="flex items-center gap-3">
                       <strong> Category: </strong>
-                      <select className="border rounded px-2 py-1 text-center"
+                      <select className="border rounded px-2 py-1 text-center text-lg leading-tight"
                         {...register("category")}
                       >
                         {CATEGORY_OPTIONS.map((category) => (
@@ -149,9 +164,10 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                           
                     <li className="flex items-center gap-3">
                       <strong> Subcategory: </strong>
-                      <select className="border rounded px-2 py-1 text-center"
+                      <select className="border rounded px-2 py-1 text-center text-lg leading-tight"
                         {...register("subcategory")}
                       >
+                        <option key={null} className="bg-white"> </option> {/* // a blank option if they want to get rid of the subcategory */}
                         {SUBCATEGORY_OPTIONS.map((subcategory) => (
                           <option key={subcategory} value={subcategory} className="bg-white">{subcategory}</option>
                         ))}
@@ -160,7 +176,7 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
 
                     <li className="flex items-center gap-3">
                       <strong> Condition: </strong>
-                      <select className="border rounded px-2 py-1 text-center"
+                      <select className="border rounded px-2 py-1 text-center text-lg leading-tight"
                         {...register("condition")}
                       >
                         {CONDITION_OPTIONS.map((condition) => (
@@ -171,13 +187,13 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
 
                     <li className="flex items-center gap-3">
                       <strong> Size: </strong>
-                      <input className="border rounded px-2 py-1 text-center text-black"
+                      <input className="border rounded px-2 py-1 text-center text-lg leading-tight"
                       {...register("size")} /> 
                     </li>
                     
                     <li className="flex items-center gap-3">
                       <strong> Color: </strong>
-                      <select className="border rounded px-2 py-1 text-center"
+                      <select className="border rounded px-2 py-1 text-center text-lg leading-tight"
                         {...register("color")}
                       >
                         {COLOR_OPTIONS.map((color) => (
@@ -187,16 +203,16 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                     </li>
                                 
                     <li className="flex items-center gap-3">
-                      <strong> Item Description: </strong>
-                      <textarea className="border rounded px-2 py-1 text-center focus:ring" 
+                      <strong> Description: </strong>
+                      <textarea className="border rounded px-2 py-1 text-center focus:ring text-lg leading-tight"
                         rows={5}
                         cols={50}
                         {...register("description")} /> 
                     </li>
-                    <div className="mt-auto flex gap-180">
+                    <div className="mt-auto flex justify-between min-h-[3rem]">
                       <button className="font-sans text-[#686dd3] font-arial text-sm mt-auto hover:cursor-pointer hover:opacity-70"
                         onClick={()=>setIsEditing(false)}> Cancel Edit </button>
-                      <button type="submit" className="text-[#686dd3] font-sans  text-sm mt-auto hover:cursor-pointer hover:opacity-70"> 
+                      <button type="submit" className="text-[#686dd3] font-sans text-sm mt-auto hover:cursor-pointer hover:opacity-70"> 
                           Save Details </button>
                     </div>
                   </form>
@@ -207,11 +223,13 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
               {/* Bottom right box for Status details & Change Status button */}
               <div className="bg-white rounded-lg p-4 flex flex-col gap-3 items-center">
                 <h1 className="text-3xl text-center text-black font-bold font-mono"> Current Status: </h1> 
-                <span className={`${getStatusColor()} text-center text-white text-xl font-bold font-mono border rounded-xl p-3 w-full`}> {item.status} </span>
+                <span className={`${getStatusColor()} text-center text-white text-xl font-bold font-mono border rounded-xl p-3 w-full`}> {mostRecentStatus} </span>
                 
-                {/* Update status button */}
-                <button className="bg-rose-400 hover:bg-rose-300 hover:cursor-pointer border rounded-3xl text-white text-xl p-3 font-mono"  
-                    onClick={ openStatusPopup }> Update </button> 
+                {/* Update status button + sign/view waiver if status is reserved or allocated */}
+                  <button className="bg-rose-400 hover:bg-rose-300 hover:cursor-pointer border rounded-3xl text-white text-xl p-3 font-mono"  
+                    onClick={ () => setStatusPageOpen(true) }> Update </button> 
+                  {(mostRecentStatus === "Reserved" || mostRecentStatus === "Allocated") &&
+                    <p className="text-red-400 italic"> You have a waiver available for view <Link href= {`/items/${item.id}/waiver`} className="underline text-blue-400"> here. </Link> </p>}
               </div>
             </div>
           </div>
@@ -225,10 +243,11 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
             //
             distribution_id = {distribution?.id}
             waiver_signed = {distribution?.waiver_signed ?? false}
-            current_status = {item.status}
+            current_status = {mostRecentStatus}
+            onStatusChange = {(updated_status) => setMostRecentStatus(updated_status)} // to re-render the "current status" box to the new status
             isOpen = { statusPageOpen }
             onClose = { () => setStatusPageOpen(false)}
-          /> 
+          />  
     </div>
     </>
   );
