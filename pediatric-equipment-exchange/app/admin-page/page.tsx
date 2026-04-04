@@ -1,67 +1,137 @@
 "use client"
 
 import SideBar from "@/components/sidebar";
-import {useState} from 'react';
+import { useState } from 'react';
+import UsersList from "@/components/user-list";
+import AllocatedEquipment from "@/components/allocated-equipment";
+import { ItemFields } from "@/field_interfaces";
 
-export default function AdminPage() {
-    const [username, setUserName] = useState("");
-    const [password, setPassword] = useState("");
+interface Props {
+  items: ItemFields[];
+}
 
-    const handleCreateUser = async () => {
-        const res = await fetch("/api/create-user", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", },
-            body: JSON.stringify({
-                username,
-                password,
-            }),
-        });
-        const data = await res.json();
-        console.log(data);
-    };
+export default function AdminPage({ items }: Props) {
+  const [open, setOpen] = useState(false);
+  const [username, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [fullName, setFullName] = useState("");
 
-    return ( <> 
-        <div className = "flex min-h-screen w-full bg-[#51b6b6]">
+  const handleCreateUser = async () => {
+    const role = isAdmin ? "admin" : "volunteer";
+    const res = await fetch("/api/create-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        password,
+        fullName,
+        role,
+      }),
+    });
+    const data = await res.json();
+    console.log(data);
+  };
 
-            <SideBar />
+  return (
+    <div className="flex min-h-screen w-full bg-[#51b6b6]">
 
-            {/*Main Contnt*/}
-            <main className = "flex-1 p-6">
-                <h1 className="text-2xl"> Admin Page </h1>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow"
+      >
+        ☰
+      </button>
 
-                {/*Grid system, add more rows to get more boxes}*/}
-                <div className= "max-w-4xl w-full mx-auto">
-                    <div className="grid grid-cols-1 grid-rows-1 gap-4">
+      {/* Overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
 
-                        {/*Add Users, First box*/}
-                        <div className="bg-white rounded-lg flex gap-2 placeholder-black text-black">
-                            <h1>Create User:</h1>
-                            <input 
-                                placeholder="Username"
-                                type="usename"
-                                value={username}
-                                onChange={(e) => setUserName(e.target.value)}
-                                className="border p-2 rounded"
-                            />
-                            <h1>Password:</h1>
-                            <input 
-                                placeholder = "Password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="border p-2 rounded"
-                            />
-                            <button onClick={handleCreateUser} className=" bg-rose-400 text-black rounded-full px-5 p-2 mt-2">
-                                Create User
-                            </button>
-                        </div>
+      <SideBar isOpen={open} onClose={() => setOpen(false)} />
 
-                    </div>
-                    
-                </div>
-            </main>
+      {/* Main Content */}
+      <main className="flex-1 p-8 py-15 mb-10 w-full h-full">
+        <h1 className="text-white text-2xl mb-8 text-center bg-rose-400 font-mono">
+          Admin Page
+        </h1>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Create User Box */}
+          <div className="bg-white rounded-lg p-4 flex flex-col gap-3 text-black">
+
+            <div className="flex flex-col">
+              <label className="text-sm">Full Name:</label>
+              <input
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm">Username:</label>
+              <input
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm">Password:</label>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <div className="flex gap-3 items-center">
+              <label className="text-sm">Make Admin?</label>
+              <button
+                onClick={() => setIsAdmin(!isAdmin)}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition ${
+                  isAdmin ? "bg-rose-400" : "bg-gray-300"
+                }`}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
+                    isAdmin ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <button
+              onClick={handleCreateUser}
+              className="bg-rose-400 text-black rounded-full px-5 p-2 mt-2"
+            >
+              Create User
+            </button>
+          </div>
+
+          {/* Users List */}
+          <div className="bg-white rounded-lg p-4 flex flex-col gap-3 text-black">
+            <UsersList />
+          </div>
+
+          {/* Allocated Items (spans 2 columns) */}
+          <div className="bg-white rounded-lg p-4 h-[50vh] overflow-y-auto md:col-span-2">
+            <AllocatedEquipment items={items}/>
+          </div>
 
         </div>
-        </>)
+      </main>
+    </div>
+  );
 }
