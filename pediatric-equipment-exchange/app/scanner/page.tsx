@@ -10,7 +10,7 @@ import {
     Html5QrcodeSupportedFormats,
 } from "html5-qrcode";
 
-export default function Scanner() {
+export default function Scanner() { // Implements a QR code and barcode scanner using html5-qrcode. When a code is successfully scanned, it navigates to the corresponding item detail page.
     const router = useRouter();
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
     const hasNavigatedRef = useRef(false);
@@ -38,7 +38,7 @@ export default function Scanner() {
 
         scannerRef.current = scanner;
 
-        scanner.render(
+        scanner.render( // When a code is successfully scanned, navigate to the item detail page for that code. ref to ensure we only navigate once per scan session.
             async (decodedText) => {
                 if (hasNavigatedRef.current) return;
                 hasNavigatedRef.current = true;
@@ -49,7 +49,7 @@ export default function Scanner() {
                     // Keep navigation flow even if cleanup throws.
                 }
 
-                router.push(`/items/[id]${decodedText}`);
+                router.push(`/items/${decodedText}`);
             },
             () => {
                 // Expected when no code is detected in a frame.
