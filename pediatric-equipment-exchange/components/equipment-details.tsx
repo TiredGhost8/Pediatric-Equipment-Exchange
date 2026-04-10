@@ -1,5 +1,6 @@
 "use client";
 
+import QrCodeDisplay from "@/components/qr-code-display";
 import { ItemFields } from "@/field_interfaces";
 import Image from "next/image";
 import { useState, useEffect } from 'react';
@@ -16,6 +17,7 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
   const [imageIndex, setImageIndex] = useState(0); // for scrolling through images
   const [isEditing, setIsEditing] = useState(false); // for editing item details, will use a form from react-hook-form
   const [itemDetails, setItemDetails] = useState(item); // to immediately show the new item details if they get changed
+  const [showQrCode, setShowQrCode] = useState(false);
   const { register, handleSubmit} = useForm({ defaultValues: item }) // form for editing details
 
   // have to send distribution info to update-status-popup in case the item is being returned
@@ -228,6 +230,17 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                 {/* Update status button + sign/view waiver if status is reserved or allocated */}
                   <button className="bg-rose-400 hover:bg-rose-300 hover:cursor-pointer border rounded-3xl text-white text-xl p-3 font-mono"  
                     onClick={ () => setStatusPageOpen(true) }> Update </button> 
+                  <button
+                    className="border rounded-3xl px-4 py-2 text-[#132540] font-mono hover:cursor-pointer hover:bg-gray-100"
+                    onClick={() => setShowQrCode((current) => !current)}
+                  >
+                    {showQrCode ? "Hide QR Code" : "Show QR Code"}
+                  </button>
+                  {showQrCode && (
+                    <div className="w-full pt-2">
+                      <QrCodeDisplay itemId={item.id} />
+                    </div>
+                  )}
                   {(mostRecentStatus === "Reserved" || mostRecentStatus === "Allocated") &&
                     <p className="text-red-400 italic"> You have a waiver available for view <Link href= {`/items/${item.id}/waiver`} className="underline text-blue-400"> here. </Link> </p>}
               </div>
