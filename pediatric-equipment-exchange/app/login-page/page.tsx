@@ -1,6 +1,30 @@
+"use client";
+
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const supabase = createClient();
+  const [email, setEmail] = useState("");
+  const [password, setPassword]=useState("");
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    router.push("/equipment-gallery"); //go to gallery on successful login
+  }
+
   return (
     /* Full screen background */
     <div className="flex min-h-screen items-center justify-center bg-[#FFC94A] font-sans">
@@ -10,19 +34,20 @@ export default function Login() {
 
         <div className="flex flex-col items-center gap-4 text-center sm:items-start sm:text-left">
           
-          <div className="w-1/2"> Right now this is just the title page copied, but here is where we can add a box for the user to input their username
-            and password. OR click the view as guest button, where their role will be Supabase's default "anon" role.
+          <div>
+            <ul className="flex flex-col gap-5 text-3xl"> 
+              <li className="border border-black"> <input onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" /> </li>
+              <li className="border border-black"> <input onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"/>  </li>
+            </ul>
           </div>
 
-          {/* TODO: Implement a login box */}
-           
-          {/* Gallery redirect until we implement this */}
-          <Link 
-            className="flex h-12 w-full items-center justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white"
-            href="/equipment-gallery"
+          <button
+            className="flex h-12 w-full items-center justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white
+            hover:cursor-pointer"
+            onClick={handleLogin}
           >
-            Enter
-          </Link>
+           Login
+          </button>
 
           <Link 
             className="flex h-12 w-full justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white"

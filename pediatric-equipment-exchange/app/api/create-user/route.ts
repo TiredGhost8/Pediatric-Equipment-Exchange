@@ -1,10 +1,24 @@
+
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin"; 
 
 export async function POST(req: Request) {
 
   const supabase = await createClient();
   
   try {
+    // get authetnicatd user 
+    const { 
+      data: { user }, 
+      error: userError } = await supabase.auth.getUser();
+    
+    if(!user || userError) { ///not authenticated
+       return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401 }
+      );
+    }
+
     const { username, password, fullName, role } = await req.json();
 
     // Validate input
@@ -29,7 +43,7 @@ export async function POST(req: Request) {
 
     // Create auth user
     const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
+      await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         user_metadata: {
@@ -40,9 +54,9 @@ export async function POST(req: Request) {
       });
 
     if (authError) {
-      console.error("Auth error: ", authError.message);
+      console.error("Create Auth User error: ", authError.message);
       return new Response(
-        JSON.stringify({ error: authError.message || "Auth error" }),
+        JSON.stringify({ error: authError.message || "Create Auth User error" }),
         { status: 400 }
       );
     }
