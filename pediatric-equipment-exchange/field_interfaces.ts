@@ -14,20 +14,25 @@ export interface ItemFields {
     barcode_value?: string | null
     qr_code_url: string
     created_at: string
+    location: string
+    barcode_number: number
 }
 
 export interface DistributionFields {
     id: string, 
     equipment_id: string,
     recipient_id: string,
-    staff_member: string,
+    reserved_by: string,
+    allocated_by: string,
+    returned_by: string,
     reserved_at: string, 
     allocated_at?: string,
-    returned_at?: string
-    condition_at_distribution: string,
-    notes?: string,
+    returned_at?: string,
     waiver_signed: boolean,
-    signed_waiver_url?: string
+    waiver_url?: string,
+    signed_at?: string,
+    condition_at_allocation?: string,
+    notes?: string,
 }
 
 export interface RecipientFields {

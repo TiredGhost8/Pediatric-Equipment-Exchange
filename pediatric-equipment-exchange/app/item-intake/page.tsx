@@ -11,6 +11,7 @@ import {
   COLOR_OPTIONS,
 } from "@/item-field-options";
 import { useEffect, useRef, useState } from "react";
+import Toast from "@/components/popups/toast";
 import { createClient } from "@supabase/supabase-js";
 import {
   Html5QrcodeScanType,
@@ -32,10 +33,12 @@ export default function ItemIntake() {
     formState: { errors },
   } = useForm<ItemFields>();
 
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]); // allow multiple image uploads
   const [barcodeValue, setBarcodeValue] = useState("");
   const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false); 
   const [uploading, setUploading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("error");
   const barcodeScannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   // Barcode scanner effect
@@ -94,29 +97,36 @@ export default function ItemIntake() {
 
   //  Upload image
   const handleImageUpload = async (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
+    const images = e.target.files;
+    if (!images) return;
     setUploading(true);
+    const uploadedUrls: string[]=[...imageUrls];
 
-    const fileName = `${Date.now()}-${file.name}`;
+    for(const image of images) { // loop through to upload all of the images
+      const fileName = `${Date.now()}-${image.name}`;
+      const { error } = await supabase.storage
+        .from("equipment-images")
+        .upload(fileName, image);
 
-    const { error } = await supabase.storage
-      .from("equipment-images")
-      .upload(fileName, file);
+      if (error) {
+        setToastType("error");
+        setToastMessage("Upload error: " + error.message);
+        setUploading(false);
+        return;
+      }
 
-    if (error) {
-      console.error("Upload error:", error.message);
+      // for displaying the images, get them from the storage
+      const { data } = supabase.storage
+        .from("equipment-images")
+        .getPublicUrl(fileName);
+      
+      if (data?.publicUrl) {
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      setImageUrls(uploadedUrls);
       setUploading(false);
-      return;
-    }
-
-    const { data } = supabase.storage
-      .from("equipment-images")
-      .getPublicUrl(fileName);
-
-    setImageUrl(data.publicUrl);
-    setUploading(false);
+    } // end of loop
   };
 
   // Submit → API
@@ -129,7 +139,7 @@ export default function ItemIntake() {
         },
         body: JSON.stringify({
           ...data,
-          image_urls: imageUrl && imageUrl.trim() !== "" ? [imageUrl] : null,
+          image_urls: imageUrls.length > 0? imageUrls : null,
           barcode_value: barcodeValue.trim() === "" ? null : barcodeValue.trim(),
         })
       });
@@ -137,12 +147,13 @@ export default function ItemIntake() {
       const result = await res.json();
 
       if (!res.ok) {
-        console.error(result.error);
-        alert(result.error ?? "Failed to add item");
+        setToastType("error");
+        setToastMessage("Failed to add item");
       } else {
-        alert("Item added successfully!");
+        setToastType("success");
+        setToastMessage("Item added succesfully!");
         reset();
-        setImageUrl("");
+        setImageUrls([]);
         setBarcodeValue("");
         setBarcodeScannerOpen(false);
       }
@@ -152,19 +163,19 @@ export default function ItemIntake() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#51b6b6]">
-
+    <div className="flex min-h-screen w-full bg-[#FFC94A]">
+      {toastMessage && <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage("")} />}
       <SideBar />
-
+      
       {/* Main content */}
       <div className="flex flex-col md:flex-row w-full gap-3 border-teal-800S px-10 py-10">
 
         {/* LEFT SIDE */}
         <div className="flex-1 flex-col gap-3 md:flex">
 
-          {/*  Upload box (UPDATED but same style) */}
+          {/*  Upload images */}
           <div className="flex-1 border-3 rounded-2xl border-teal-800 bg-white p-3 flex flex-col items-center justify-center">
-            <p className="text-2xl text-center mb-3">Upload images</p>
+            <p className="text-2xl text-center mb-3"> Upload images </p>
 
             {/* hidden input */}
             <input
@@ -173,12 +184,13 @@ export default function ItemIntake() {
               onChange={handleImageUpload}
               id="fileUpload"
               className="hidden"
+              multiple
             />
 
-            {/* styled button (matches your UI) */}
+            {/* styled button */}
             <label
               htmlFor="fileUpload"
-              className="bg-rose-400 border border-black rounded-3xl px-6 py-2 cursor-pointer hover:bg-rose-300"
+              className="bg-[] border border-black rounded-3xl px-6 py-2 cursor-pointer hover:bg-[#4a8a2e]"
             >
               Choose Image
             </label>
@@ -187,13 +199,20 @@ export default function ItemIntake() {
               <p className="text-center mt-2">Uploading...</p>
             )}
 
-            {imageUrl && (
-              <img
-                src={imageUrl}
-                className="mt-4 w-full h-40 object-cover rounded-lg"
-              />
+            {imageUrls && (
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                {imageUrls.map((url, index) => (
+                  <img
+                    key={index}
+                    src={url}
+                    className="mt-4 w-full h-64 object-cover rounded-lg"
+                  /> 
+                  ))
+                } 
+              </div>
             )}
-          </div>
+          
+            
 
           {/* Barcode attachment section */}
           <div className="flex-1 border-3 rounded-2xl border-teal-800 bg-white p-3">
@@ -248,14 +267,14 @@ export default function ItemIntake() {
 
             <input
               placeholder="*Item Name*"
-              className="bg-rose-400 border border-rose-900 rounded-3xl placeholder-black text-black text-center px-6 py-2 text-3xl hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-[#4a8a2e] rounded-3xl placeholder-black text-black text-center px-6 py-2 text-3xl hover:shadow-xl"
               {...register("name", { required: "Name is required!" })}
             />
             <p className="text-red-600 text-sm">{errors.name?.message}</p>
 
             <select
               {...register("category", { required: "Category is required!" })}
-              className="bg-rose-400 border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
             >
               <option value="">Select a category</option>
               {CATEGORY_OPTIONS.map((category) => (
@@ -268,7 +287,7 @@ export default function ItemIntake() {
 
             <select
               {...register("subcategory")}
-              className="bg-rose-400 border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
             >
               <option value="">Select a subcategory</option>
               {SUBCATEGORY_OPTIONS.map((subcategory) => (
@@ -280,7 +299,7 @@ export default function ItemIntake() {
 
             <select
               {...register("condition", { required: "Condition is required!" })}
-              className="bg-rose-400 border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
             >
               <option value="">Select item condition</option>
               {CONDITION_OPTIONS.map((condition) => (
@@ -293,7 +312,7 @@ export default function ItemIntake() {
 
             <textarea
               placeholder="Item description"
-              className="bg-rose-400 border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
               {...register("description")}
               rows={6}
               cols={20}
@@ -301,13 +320,13 @@ export default function ItemIntake() {
 
             <input
               placeholder="Size"
-              className="bg-rose-400 border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
               {...register("size")}
             />
 
             <select
               {...register("color", { required: "Color is required!" })}
-              className="bg-rose-400 border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
             >
               <option value="">Select a color</option>
               {COLOR_OPTIONS.map((color) => (
@@ -320,10 +339,10 @@ export default function ItemIntake() {
 
             <select
               {...register("status", { required: "Status is required!" })}
-              className="bg-rose-400 border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl text-black text-center px-6 py-2 hover:shadow-xl"
             >
               <option value="">Select item status</option>
-              {STATUS_OPTIONS.map((status) => (
+              {STATUS_OPTIONS.filter((status) => status!=="Reserved" && status !== "Allocated").map((status) => (
                 <option key={status} value={status} className="bg-white">
                   {status}
                 </option>
@@ -333,18 +352,35 @@ export default function ItemIntake() {
 
             <input
               placeholder="Donor name"
-              className="bg-rose-400 border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
+              className="bg-[#5a9e3a] border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
               {...register("donor")}
             />
+
+             <input
+              placeholder="Location"
+              className="bg-[#5a9e3a] border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
+              {...register("location", { required: "Location is required!" })}
+            />
+            <p className="text-red-600 text-sm">{errors.location?.message}</p>
+
+             <input
+              type="number"
+              placeholder="Barcode Number"
+              className="bg-[#5a9e3a] border border-black rounded-3xl placeholder-black text-black text-center px-6 py-2 hover:shadow-xl"
+              {...register("barcode_number", { required: "Barcode number is required!" })}
+            />
+            <p className="text-red-600 text-sm">{errors.barcode_number?.message}</p>
 
             <input
               type="submit"
               value="Submit"
-              className="bg-rose-400 border border-black rounded-3xl px-6 py-2 text-2xl hover:bg-rose-300 cursor-pointer"
+              className="bg-[#5a9e3a] border border-black rounded-3xl px-6 py-2 text-2xl hover:hover:bg-[#4a8a2e] cursor-pointer"
             />
+
           </form>
         </div>
       </div>
     </div>
+  </div>
   );
 }

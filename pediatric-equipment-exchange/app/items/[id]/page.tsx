@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export default async function Item(details: { params: any }) {
 
-   const { id } = await details.params; // unwrap the Promise
+  const { id } = await details.params; // unwrap the Promise
 
   // Attempt to find the item by barcode first, then by ID, and finally by legacy ID  
   const lookupValue = decodeURIComponent(id); 

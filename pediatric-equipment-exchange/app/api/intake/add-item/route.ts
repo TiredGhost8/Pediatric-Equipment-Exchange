@@ -27,6 +27,7 @@ export async function POST(req: Request) {
           image_urls: Array.isArray(body.image_urls)
             ? body.image_urls
             : null,
+          location: body.location,
           barcode_value: normalizedBarcode === "" ? null : normalizedBarcode,
           qr_code_url: "",
         },
