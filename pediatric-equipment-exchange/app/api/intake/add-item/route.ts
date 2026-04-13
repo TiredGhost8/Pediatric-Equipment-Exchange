@@ -9,6 +9,7 @@ const supabase = createClient(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const normalizedBarcode = typeof body.barcode_value === "string" ? body.barcode_value.trim() : ""; // Normalize the barcode value by trimming whitespace. If it's not a string, default to an empty string.
 
     const { data, error } = await supabase
       .from("equipment")
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
           image_urls: Array.isArray(body.image_urls)
             ? body.image_urls
             : null,
+          barcode_value: normalizedBarcode === "" ? null : normalizedBarcode,
           qr_code_url: "",
         },
       ])
@@ -33,6 +35,13 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
+      if (error.code === "23505") { // Unique violation error code from Supabase/PostgreSQL when barcode_value conflicts with another item.
+        return NextResponse.json(
+          { error: "Barcode is already attached to another item." },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json(
         { error: error.message },
         { status: 500 }

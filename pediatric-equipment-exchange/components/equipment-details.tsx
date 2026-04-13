@@ -1,6 +1,5 @@
 "use client";
 
-import QrCodeDisplay from "@/components/qr-code-display";
 import { ItemFields } from "@/field_interfaces";
 import Image from "next/image";
 import { useState, useEffect } from 'react';
@@ -17,7 +16,6 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
   const [imageIndex, setImageIndex] = useState(0); // for scrolling through images
   const [isEditing, setIsEditing] = useState(false); // for editing item details, will use a form from react-hook-form
   const [itemDetails, setItemDetails] = useState(item); // to immediately show the new item details if they get changed
-  const [showQrCode, setShowQrCode] = useState(false);
   const { register, handleSubmit} = useForm({ defaultValues: item }) // form for editing details
 
   // have to send distribution info to update-status-popup in case the item is being returned
@@ -41,7 +39,14 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
         alert("Update failed");
       } else {
         alert("Item updated succesfully!");
-        setItemDetails(data);
+        setItemDetails((currentItem) => ({
+          ...currentItem,
+          ...data,
+          barcode_value:
+            typeof data.barcode_value === "string" && data.barcode_value.trim() !== ""
+              ? data.barcode_value.trim()
+              : null,
+        }));
         setIsEditing(false);
       }
     } catch (err) {
@@ -136,6 +141,7 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                   <li><strong>Size:</strong> {itemDetails.size? itemDetails.size : "N/A"}</li>
                   <li><strong>Color:</strong> {itemDetails.color}</li>
                   <li><strong>Description:</strong> {itemDetails.description? itemDetails.description : "N/A"}</li>
+                  <li><strong>Barcode:</strong> {itemDetails.barcode_value ? itemDetails.barcode_value : "Not attached"}</li>
                 </ul>
                 <button className="text-md mt-auto hover:cursor-pointer hover:opacity-70" onClick={()=>setIsEditing(true)}> ✎ Edit Details </button>
                 </>
@@ -211,6 +217,14 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                         cols={50}
                         {...register("description")} /> 
                     </li>
+
+                    <li className="flex items-center gap-3">
+                      <strong> Barcode: </strong>
+                      <input className="border rounded px-2 py-1 text-center text-lg leading-tight"
+                        placeholder="Scan or type barcode"
+                        {...register("barcode_value")}
+                      />
+                    </li>
                     <div className="mt-auto flex justify-between min-h-[3rem]">
                       <button className="font-sans text-[#686dd3] font-arial text-sm mt-auto hover:cursor-pointer hover:opacity-70"
                         onClick={()=>setIsEditing(false)}> Cancel Edit </button>
@@ -230,17 +244,9 @@ export default function EquipmentDetails({ item }: { item: ItemFields })  {
                 {/* Update status button + sign/view waiver if status is reserved or allocated */}
                   <button className="bg-rose-400 hover:bg-rose-300 hover:cursor-pointer border rounded-3xl text-white text-xl p-3 font-mono"  
                     onClick={ () => setStatusPageOpen(true) }> Update </button> 
-                  <button
-                    className="border rounded-3xl px-4 py-2 text-[#132540] font-mono hover:cursor-pointer hover:bg-gray-100"
-                    onClick={() => setShowQrCode((current) => !current)}
-                  >
-                    {showQrCode ? "Hide QR Code" : "Show QR Code"}
-                  </button>
-                  {showQrCode && (
-                    <div className="w-full pt-2">
-                      <QrCodeDisplay itemId={item.id} />
-                    </div>
-                  )}
+                  <p className="text-sm text-[#132540]">
+                    Attached barcode: <span className="font-semibold">{itemDetails.barcode_value ? itemDetails.barcode_value : "None"}</span>
+                  </p>
                   {(mostRecentStatus === "Reserved" || mostRecentStatus === "Allocated") &&
                     <p className="text-red-400 italic"> You have a waiver available for view <Link href= {`/items/${item.id}/waiver`} className="underline text-blue-400"> here. </Link> </p>}
               </div>

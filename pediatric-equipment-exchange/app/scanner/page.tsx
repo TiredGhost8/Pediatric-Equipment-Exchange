@@ -41,6 +41,8 @@ export default function Scanner() { // Implements a QR code and barcode scanner 
         scanner.render( // When a code is successfully scanned, navigate to the item detail page for that code. ref to ensure we only navigate once per scan session.
             async (decodedText) => {
                 if (hasNavigatedRef.current) return;
+                const normalizedCode = decodedText.trim(); // Code is normalized by trimming whitespace
+                if (!normalizedCode) return; // Ignore empty codes after trimming
                 hasNavigatedRef.current = true;
 
                 try {
@@ -49,7 +51,7 @@ export default function Scanner() { // Implements a QR code and barcode scanner 
                     // Keep navigation flow even if cleanup throws.
                 }
 
-                router.push(`/items/${decodedText}`);
+                router.push(`/items/${encodeURIComponent(normalizedCode)}`); // Navigate to the item detail page for the scanned code, encoding it to ensure it's URL-safe.
             },
             () => {
                 // Expected when no code is detected in a frame.
@@ -72,7 +74,7 @@ export default function Scanner() { // Implements a QR code and barcode scanner 
             <main className="flex-1 p-4 md:p-8">
                 <h1 className="text-2xl font-semibold text-[#132540]">Scan Equipment</h1>
                 <p className="mt-2 text-sm text-[#132540]">
-                    Point your camera at a QR code or barcode to open that equipment record.
+                    Point your camera at a barcode label to open the attached equipment record.
                 </p>
 
                 <section className="mt-6 max-w-xl rounded-2xl bg-white/85 p-4 shadow-lg">
