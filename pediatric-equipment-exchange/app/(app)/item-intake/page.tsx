@@ -273,7 +273,7 @@ export default function ItemIntake() {
             <div className="mt-3 flex gap-2"> 
               <button
                 type="button"
-                className="flex-1 rounded-2xl border border-black bg-rose-400 px-4 py-2 text-black hover:bg-rose-300"
+                className="flex-1 rounded-2xl border border-black bg-[#5a9e3a] px-4 py-2 text-black hover:bg-rose-300"
                 onClick={() => setBarcodeScannerOpen((current) => !current)}
               >
                 {barcodeScannerOpen ? "Close Scanner" : "Scan Barcode"}

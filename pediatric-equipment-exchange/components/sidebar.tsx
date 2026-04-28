@@ -13,9 +13,16 @@ export default function SideBar() {
     const router = useRouter();
 
     const handleSignOut = async () => {
-        await supabase.auth.signOut();
-            router.replace("/login-page");  
-            router.refresh();            
+        const {error} = await supabase.auth.signOut();
+        
+        console.log("Sign out error:", error);
+
+        if (error) {
+            alert("sign out failed");
+            return;
+        }
+
+        router.replace("/login");  
     };
 
     return (

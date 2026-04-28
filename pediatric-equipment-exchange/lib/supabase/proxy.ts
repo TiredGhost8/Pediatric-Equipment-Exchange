@@ -45,7 +45,7 @@ export async function updateSession(request: NextRequest) {
   console.log("USER: ", user);
 
   // to implement the "guest view" for families
-
+ 
   const publicRoutes = ['/', '/login-page', '/equipment-gallery', '/items']
 
   const isPublic = publicRoutes.some((route) => 
@@ -57,6 +57,7 @@ export async function updateSession(request: NextRequest) {
     url.pathname = '/login-page';
     return NextResponse.redirect(url);
   }  
+
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:

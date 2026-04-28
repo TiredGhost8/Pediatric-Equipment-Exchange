@@ -16,6 +16,8 @@ export default function Login() {
       email,
       password,
     });
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
 
     if (error) {
       console.error(error);
@@ -28,30 +30,31 @@ export default function Login() {
 
   return (
     /* Full screen background */
-    <div className="flex min-h-screen items-center justify-center bg-[#FFC94A] font-sans">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#91B472]">
 
       {/* Middle box */}
-      <main className="flex min-h-screen w-4/6 max-w-screen flex-col items-center justify-center py-8 px-16 bg-[#FFE09A] sm:items-start">
+      <main className="flex w-full max-w-md flex-col items-center justify-center p-6 bg-[#FBF5DB] rounded-2xl shadow-md">
+        <h1 className= "text-3xl font-semibold mb-6 text-center w-full"> Login </h1>
 
         <div className="flex flex-col items-center gap-4 text-center sm:items-start sm:text-left">
           
           <div>
-            <ul className="flex flex-col gap-5 text-3xl"> 
-              <li className="border border-black"> <input onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" /> </li>
-              <li className="border border-black"> <input onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"/>  </li>
+            <ul className="flex w-flex flex-col gap-5 text-lg"> 
+              
+              <li className="border border-black rounded-lg p-2"> <input onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" /> </li>
+              <li className="border border-black rounded-lg p-2"> <input type ="password" value= {email} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"/>  </li>
             </ul>
           </div>
 
           <button
-            className="flex h-12 w-full items-center justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white
-            hover:cursor-pointer"
+            className="inline-flex items-center justify-center h-8 px-6 rounded-full bg-[#5a9e3a] text-white text-lg transition-colors hover:bg-[#4a8a2e] w-full md:w-auto"
             onClick={handleLogin}
           >
            Login
           </button>
 
           <Link 
-            className="flex h-12 w-full justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white"
+            className="inline-flex items-center justify-center h-8 px-6 rounded-full bg-[#5a9e3a] text-white text-lg transition-colors hover:bg-[#4a8a2e] w-full md:w-auto hover:cursor-pointer"
             href="/equipment-gallery"
           >
            View as Guest
