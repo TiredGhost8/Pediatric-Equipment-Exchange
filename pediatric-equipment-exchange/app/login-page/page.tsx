@@ -8,54 +8,85 @@ import { useRouter } from "next/navigation";
 export default function Login() {
   const supabase = createClient();
   const [email, setEmail] = useState("");
-  const [password, setPassword]=useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter your email and password");
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      console.error(error);
+      alert(error.message);
       return;
     }
 
-    router.push("/equipment-gallery"); //go to gallery on successful login
-  }
+    router.push("/equipment-gallery");
+  };
 
   return (
-    /* Full screen background */
-    <div className="flex min-h-screen items-center justify-center bg-[#FFC94A] font-sans">
+    <div className="flex min-h-screen items-center justify-center bg-[#FFC94A]">
 
-      {/* Middle box */}
-      <main className="flex min-h-screen w-4/6 max-w-screen flex-col items-center justify-center py-8 px-16 bg-[#FFE09A] sm:items-start">
+      {/* Card */}
+      <main className="flex flex-col gap-6 bg-[#FFE09A] rounded-2xl shadow-2xl p-10 w-[90%] max-w-md">
 
-        <div className="flex flex-col items-center gap-4 text-center sm:items-start sm:text-left">
-          
-          <div>
-            <ul className="flex flex-col gap-5 text-3xl"> 
-              <li className="border border-black"> <input onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" /> </li>
-              <li className="border border-black"> <input onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"/>  </li>
-            </ul>
-          </div>
-
-          <button
-            className="flex h-12 w-full items-center justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white
-            hover:cursor-pointer"
-            onClick={handleLogin}
-          >
-           Login
-          </button>
-
-          <Link 
-            className="flex h-12 w-full justify-center rounded-full bg-[#5a9e3a] px-5 transition-colors hover:border-transparent hover:bg-[#4a8a2e] md:w-[158px] text-xl text-white"
-            href="/equipment-gallery"
-          >
-           View as Guest
-          </Link>
+        {/* Header */}
+        <div className="text-center mb-2">
+          <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
+          <p className="text-sm text-gray-500 mt-1">Sign in to your account</p>
         </div>
+
+        {/* Email */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-semibold text-gray-600">Email Address</label>
+          <input
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5a9e3a]"
+          />
+        </div>
+
+        {/* Password */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-semibold text-gray-600">Password</label>
+          <input
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5a9e3a]"
+          />
+        </div>
+
+        {/* Login Button */}
+        <button
+          onClick={handleLogin}
+          className="w-full rounded-xl bg-[#5a9e3a] py-3 text-lg font-semibold text-white transition-colors hover:bg-[#4a8a2e] cursor-pointer"
+        >
+          Login
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-gray-300" />
+          <span className="text-sm text-gray-400">or</span>
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+
+        {/* Guest Button */}
+        <Link
+          href="/equipment-gallery"
+          className="w-full rounded-xl border-2 border-[#5a9e3a] py-3 text-lg font-semibold text-[#5a9e3a] text-center transition-colors hover:bg-[#5a9e3a] hover:text-white"
+        >
+          View as Guest
+        </Link>
+
       </main>
     </div>
   );

@@ -14,8 +14,8 @@ export interface ItemFields {
     barcode_value?: string | null
     qr_code_url: string
     created_at: string
-    location: string
-    barcode_number: number
+    location?: string
+    barcode_number?: number
 }
 
 export interface DistributionFields {
