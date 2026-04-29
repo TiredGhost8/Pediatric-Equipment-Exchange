@@ -1,19 +1,20 @@
 
 export interface ItemFields {
-    id: string,
-    name: string,
-    category: string,
-    subcategory: string | null,
-    condition: string,
-    status: string,
-    description: string | null,
-    size: string,
-    color: string | null,
-    donor: string | null,
-    image_urls: string[],
-    created_at: string,
-    location: string,
-    barcode_value: string | null
+    id: string
+    name: string
+    category: string
+    subcategory: string | null
+    condition: string
+    status: string
+    description: string | null
+    size: string
+    color: string | null
+    donor: string | null
+    image_urls: string[]
+    barcode_value?: string | null
+    created_at: string
+    location?: string
+    barcode_number?: number
 }
 
 export interface DistributionFields {
