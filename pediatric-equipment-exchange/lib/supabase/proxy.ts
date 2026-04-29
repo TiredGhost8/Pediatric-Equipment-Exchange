@@ -30,10 +30,18 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims()
 
   const user = data?.claims
+  console.log("USER: ", user);
 
-  if (request.nextUrl.pathname.startsWith('/api')) {
+if (request.nextUrl.pathname.startsWith('/api')) {
     return NextResponse.next()
   }
+
+  // to implement the "guest view" for families
+  if (!user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login-page';
+    return NextResponse.redirect(url);
+  }  
 
   return supabaseResponse
 }
