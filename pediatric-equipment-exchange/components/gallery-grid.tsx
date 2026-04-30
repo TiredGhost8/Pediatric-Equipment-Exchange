@@ -4,6 +4,8 @@ import EquipmentCard from "@/components/equipment-card";
 import { ItemFields } from "@/field_interfaces";
 import { useState } from "react";
 import { CATEGORY_OPTIONS } from "@/item-field-options";
+import Lottie from "lottie-react";
+import dogAnimation from "../public/Long_Dog.json";
 
 interface Props {
     items: ItemFields[];
@@ -192,26 +194,43 @@ export default function GalleryGrid({ items }: Props) {
                 }
 
                 {itemMatches.length === 0 && items.length > 0 &&
-    <div className="flex flex-col gap-4 bg-orange-100 border p-6 border-gray-100 shadow-lg rounded-3xl col-span-4 m-10 justify-self-center">
-        {selectedCategories.length > 0 && itemMatches.length === 0 ? (
-            <>
-                <span className="text-4xl text-center">🚴‍♂️</span>
-                <span className="text-orange-700 font-semibold text-xl text-center">
-                    These items are so cutting-edge, they haven't arrived yet!
-                </span>
-                <span className="text-orange-600 text-center">
-                    Check back soon! good things come to those who wait. 
-                </span>
-            </>
-        ) : (
-            <>
-                <span className="text-orange-700 font-semibold text-xl text-center">No items match your search!</span>
-                <button onClick={clearFilters} className="text-orange-700 underline text-center cursor-pointer">
-                    Clear filters
-                </button>
-            </>
-        )}
+    <div className="flex flex-col gap-4 p-6 rounded-3xl col-span-4 m-10 justify-self-center items-center w-full">
+        
+        <div className="w-full overflow-hidden relative h-32 md:h-40 mb-2">
+    <div style={{
+        position: "absolute",
+        animation: "dogRun 3s linear 1 forwards",
+    }}>
+        <Lottie 
+            animationData={dogAnimation} 
+            loop={true}
+            style={{ width: "clamp(80px, 20vw, 150px)", height: "clamp(80px, 20vw, 150px)" }}
+        />
     </div>
+</div>
+
+<style>{`
+    @keyframes dogRun {
+        0%   { left: -180px; }
+        100% { left: calc(100% + 180px); }
+    }
+`}</style>
+
+        <span className="text-[#132540] font-bold text-2xl text-center">
+            Hold on, we are fetching it now! 
+        </span>
+        <span className="text-gray-500 text-center">
+            Still searching 🦴. Check again later! 
+        </span>
+
+        <button 
+            onClick={clearFilters} 
+            className="mt-2 border-2 border-[#132540] text-[#132540] hover:bg-[#132540] hover:text-white rounded-full px-6 py-2 text-sm transition-colors cursor-pointer"
+        >
+            Back
+        </button>
+    </div>
+
 }
                 {itemMatches.map((item) => (
                     <EquipmentCard key={item.id} item={item} />
