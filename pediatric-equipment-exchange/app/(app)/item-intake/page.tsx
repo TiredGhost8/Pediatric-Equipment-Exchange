@@ -29,11 +29,55 @@ export default function ItemIntake() {
   const [uploading, setUploading] = useState(false);
 
   const [barcodeValue, setBarcodeValue] = useState("");
-  const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false); 
+  const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false);
+  const [barcodeExists, setBarcodeExists] = useState(false);
+  const [barcodeCheckLoading, setBarcodeCheckLoading] = useState(false);
   
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("error");
  
+
+
+
+  /* Barcode Validation Section */
+  
+  const checkBarcodeExists = async (barcode: string) => {
+    const trimmed = barcode.trim();
+    if (!trimmed) {
+      setBarcodeExists(false);
+      return;
+    }
+
+    setBarcodeCheckLoading(true);
+    try {
+      const { count, error } = await supabase
+        .from("equipment")
+        .select("id", { count: "exact", head: true })
+        .eq("barcode_value", trimmed);
+
+      if (error) {
+        console.error("[DEBUG][item-intake] barcode check error:", error.message);
+        setBarcodeExists(false);
+      } else {
+        console.log("[DEBUG][item-intake] barcode count:", count);
+        setBarcodeExists((count ?? 0) > 0);
+      }
+    } catch (err) {
+      console.error("[DEBUG][item-intake] barcode check failed:", err);
+      setBarcodeExists(false);
+    } finally {
+      setBarcodeCheckLoading(false);
+    }
+  };
+
+  // Check barcode whenever it changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkBarcodeExists(barcodeValue);
+    }, 500); // debounce by 500ms to avoid too many queries
+
+    return () => clearTimeout(timer);
+  }, [barcodeValue]);
 
   /* Barcode Scanner Section */
 
@@ -270,6 +314,16 @@ export default function ItemIntake() {
               className="mt-4 w-full rounded-2xl border border-black px-4 py-2 text-center"
             />
 
+            {barcodeCheckLoading && (
+              <p className="text-center text-sm text-gray-600">Checking barcode...</p>
+            )}
+
+            {barcodeExists && (
+              <p className="text-center text-sm text-red-600 font-semibold">
+                ⚠️ This barcode already exists in the system!
+              </p>
+            )}
+
             <div className="mt-3 flex gap-2"> 
               <button
                 type="button"
@@ -409,9 +463,9 @@ export default function ItemIntake() {
 
             <button
               type="submit"
-              disabled={uploading}
+              disabled={uploading || barcodeExists}
               className={`bg-[radial-gradient(ellipse_at_bottom_right,_#fbbf24,_#fde047,_#22c55e)] font-mono font-semibold md:mt-3 m-3 border border-black rounded-3xl px-6 py-2 text-2xl
-              ${uploading ? "opacity-50 cursor-not-allowed": "hover:bg-gradient-to-r from-yellow-200 via-green-200 to-green-300 cursor-pointer"}`}
+              ${uploading || barcodeExists ? "opacity-50 cursor-not-allowed": "hover:bg-gradient-to-r from-yellow-200 via-green-200 to-green-300 cursor-pointer"}`}
             >
               {uploading ? "Uploading Item..." : "Submit"}
             </button>
