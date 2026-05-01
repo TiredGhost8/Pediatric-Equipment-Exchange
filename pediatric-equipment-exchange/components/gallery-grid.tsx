@@ -86,6 +86,7 @@ export default function GalleryGrid({ items }: Props) {
 
                 {/* Filter dropdowns */}
                 <div className="flex flex-wrap gap-3 items-center">
+                    <span className="text -sm font-semibold text-[#132540] mr-1">Filter & Sort:</span>
 
                     {/* Category dropdown */}
                     <div className="relative">
