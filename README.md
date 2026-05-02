@@ -51,15 +51,11 @@ npm -v
 
 ## Project Structure
 
-After extracting the ZIP, you may see an extra wrapper folder like:
+When extracting the ZIP, please extract it into your Downloads folder instead of inside itself to avoid a duplicate wrapping folder.
 
-Pediatric-Equipment-Exchange/
-
-Inside it, the actual project is:
+The ROOT PROJECT FOLDER is:
 
 Pediatric-Equipment-Exchange-main/
-
-This is the ROOT PROJECT FOLDER.
 
 Inside ROOT you will find:
 
@@ -68,9 +64,10 @@ Inside ROOT you will find:
      pediatric-equipment-exchange/  ← Frontend (Next.js)
 ```
 
-You MUST run all backend commands here:
+You MUST run all backend commands FROM THE ROOT:
+
 ```bash
-   cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main
+   cd Pediatric-Equipment-Exchange-main
 ```
 
 The system consists of two parts: 
@@ -89,30 +86,29 @@ npx supabase db reset
 
 ## QUICK SETUP GUIDE
 
-Start with either: git clone https://github.com/TiredGhost8/Pediatric-Equipment-Exchange.git  OR extract the project from the .zip.
-
 > You will need 2 terminals open.
 > 
-> One will be in the ROOT folder for the backend Supabase commands. ( cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main )
+> One will be in the ROOT folder for the backend Supabase commands. ( cd Pediatric-Equipment-Exchange-main )
 > 
-> One will be in the inner folder for the Nextjs Frontend commands. ( cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange )
+> One will be in the inner folder for the Nextjs Frontend commands. ( cd Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange )
+
+Extract the project from the .zip. When extracting the ZIP, please extract it into your Downloads folder instead of inside itself to avoid a duplicate wrapping folder.
 
 ```bash
 
-cd into the extracted project folder. Likely:
-cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main
+cd Pediatric-Equipment-Exchange-main (ROOT FOLDER)
 
 npx supabase start (IN ROOT FOLDER)
 
 ```
 Leave this terminal OPEN — do NOT close it.
 
-- IMPORTANT: Create a .env.local file under the inner /pediatric-equipment-exchange folder, and copy and paste the environment variables that show under “Authentication Keys”. See .env.example for an example.
+- IMPORTANT: Create a .env.local file inside of the inner /pediatric-equipment-exchange folder, and copy and paste the environment variables that show under “Authentication Keys”. See .env.example for an example.
 
 - Open a new terminal
 
 ```bash
-cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange
+cd Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange
 
 npm install
 
@@ -134,8 +130,7 @@ npm run dev
 Clone the repository OR extract it from the .zip
 
 ```bash
-cd into the extracted project folder. Likely:
-cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main (ROOT FOLDER)
+cd Pediatric-Equipment-Exchange-main (ROOT FOLDER)
 ```
 
 # Start Backend (Supabase) from the project root folder
@@ -151,7 +146,7 @@ This process may take a few minutes on the first run.
 
 IMPORTANT: You must create a file named .env.local with the values of the "Authentication Keys" that show on the terminal after npx supabase start
 
-     - Navigate to the FRONTEND folder Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange  
+     - Navigate to the FRONTEND folder Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange  
      
      - Add a new file. Name it: .env.local
 
@@ -171,7 +166,7 @@ KEEP THIS TERMINAL OPEN AND RUNNING!
 - OPEN A NEW TERMINAL and navigate to the folder containing the App. Install the dependencies, run the bootstrap that creates a user profile, and then run the local instance:
 
 ```bash
-cd Pediatric-Equipment-Exchange/Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange 
+cd Pediatric-Equipment-Exchange-main/pediatric-equipment-exchange 
 
 npm install 
 
